@@ -1,12 +1,6 @@
-# card-wars-discord-bot
- A Discord bot with every card in the trading card game.
+# bmo-discord-bot
+ A Discord Bot with Card Wars TCG data as well as some moderation features
  
 ## What is this?
-This is the source code for the discord bot that has every card in card wars indexed with its img data as well! Feel free to host this yourself or use the one thats being hosted on the discord server! Link below.
-
-Modified and added data from https://github.com/TJSoler/cardwars
-
-Thanks to ``Baconator#2332`` on the discord server for formating the cards and database.
-
-Join the server to try it out live:
-https://discord.gg/pH2AS45
+A fork of caret's (@641i130) card wars bot that combines the card bot with moderation features.
+https://github.com/641i130/card-wars-discord-bot
