@@ -5,38 +5,47 @@ import csv
 import datetime
 import urllib.parse
 
-def log_write(text):
-    with open("log.log","a") as log:
-        all = "[{}] : \t{}\n".format(str(datetime.datetime.now()),text)
-        print(text)
-        log.write(all)
 
-log_write("Starting BOT!!!")
+TOKEN = "Your Token"
+intents = discord.Intents(messages=True, message_content=True, reactions=True)
+badwords = []
 
-TOKEN = "insert your token"
-bot = commands.Bot(command_prefix='$')
+bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command('help')
 
+# Ready Function
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Game(name='Card Wars'))
-    log_write('We have logged in as {0.user}'.format(bot))
+    log_write('Bot logged in as {0.user}'.format(bot))
+    load_bad_words()
 
+# Message Event
+@bot.event
+async def on_message(msg):
+    if msg.author != bot.user:
+        if msg.content.lower().startswith("!hi"):
+            await msg.channel.send(f"Hi, {msg.author.display_name}")
+        for text in badwords:
+            if text in str(msg.content.lower()):
+                await msg.delete()
+                return
 
+# Command Error
 @bot.event
 async def on_command_error(ctx,error):
-    await ctx.send("Try `$help` for examples on how to use this.")
-    log_write("No arguments given with $c lol")
+    await ctx.send("Try `!help` for examples on how to use this.")
+    log_write("No arguments given with !c")
     log_write("")
 
-
+# !c Command
 @bot.command()
 async def c(ctx, *, arg):
-    embed = discord.Embed(color=0xfff100)
+    embed = discord.Embed(color=0x1abc9c)
     with open('./cards.csv') as cfile:
         csv_file = csv.reader(cfile, delimiter=',',quotechar='"')
         # Find card and return value
-        log_write("{1} \t$c {0}".format(arg,ctx.message.author))
+        log_write("{1} \t!c {0}".format(arg,ctx.message.author))
 
         search=[]
         for row in csv_file:
@@ -77,7 +86,7 @@ async def c(ctx, *, arg):
         if len(search) == 1:
             returned_card=search[0]
 
-            embed = discord.Embed(color=0xfff100)
+            embed = discord.Embed(color=0x1abc9c)
 
             embed.set_author(name=returned_card[0], icon_url="insert your icon")
             embed.add_field(name="Deck / Quantity", value=returned_card[8].rstrip(), inline=False)
@@ -107,10 +116,11 @@ async def c(ctx, *, arg):
             log_write(text.join(returned_card[0]))
             log_write("")
 
+# !img Command
 @bot.command()
 async def img(ctx, *, arg):
 
-    embed = discord.Embed(color=0xfff100)
+    embed = discord.Embed(color=0x1abc9c)
 
     with open('./cards.csv') as cfile:
         csv_file = csv.reader(cfile, delimiter=',',quotechar='"')
@@ -160,15 +170,31 @@ async def img(ctx, *, arg):
             print(','.join(str(v) for v in search))
             log_write("")
 
+# !help Command
 @bot.command()
 async def help(ctx, message=None):
     # THis should DM the user that requested it.
-    embed = discord.Embed(color=0xfff100)
+    embed = discord.Embed(color=0x1abc9c)
     embed.set_author(name="Help Page")
     embed.add_field(name="Commands:", value="`$c [card name]` shows details of a card. \n `$img [card name]` shows just the image of a card.", inline=True)
     embed.add_field(name="Report a problem: ", value="Message INSERT YOUR USER ID", inline=True)
     await ctx.author.send(embed=embed)
     log_write("Sent help message to {} DMS.".format(ctx.message.author))
     await ctx.send("Check your dms!")
+
+# Print Text to Log (But also to console)
+def log_write(text):
+    with open("log.log","a") as log:
+        all = "[{}] : \t{}\n".format(str(datetime.datetime.now()),text)
+        print(text)
+        log.write(all)
+
+# Load list of bad words
+def load_bad_words():
+    with open("badwords.txt", "r") as file:
+        for word in file:
+            word = word.strip()
+            badwords.append(word)
+
 
 bot.run(TOKEN)
